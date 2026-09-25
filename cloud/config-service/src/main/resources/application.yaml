@@ -1,0 +1,16 @@
+server:
+  port: 9999
+
+spring:
+  application:
+    name: config-service
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/jacQUE656/banking_system.git
+          clone-on-start: true
+          default-label: main
+
+          # 📂 Exact relative path from the repository root to your config files
+          search-paths: services/config-service/config

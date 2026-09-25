@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: account-service  # Tells config-service to find 'account-service.yml'
+  config:
+    import: "optional:configserver:${SPRING_CLOUD_CONFIG_URI:http://localhost:9999}"
