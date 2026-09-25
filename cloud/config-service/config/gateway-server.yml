@@ -1,0 +1,44 @@
+server:
+  port: 7000
+
+spring:
+  application:
+    name: gateway-server
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            #ACCOUNT SERVICE ROUTE
+            - id: account-service
+              uri: http://localhost:10001
+              predicates:
+                - Path=/api/v1/accounts/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
+
+            #TRANSACTION SERVICE ROUTE
+            - id: transaction-service
+              uri: http://localhost:10006
+              predicates:
+                - Path=/api/v1/transactions/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
+
+            #PAYMENT SERVICE ROUTE
+            - id: payment-service
+              uri: http://localhost:10005
+              predicates:
+                - Path=/api/v1/payments/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10

@@ -1,0 +1,88 @@
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
+
+# Expose Actuator Health Endpoint for Docker Compose health checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+
+
+# Shared JWT Configuration
+jwt:
+  access-token-expiration: 86400000
+  refresh-token-expiration: 604800000
+
+# Shared JPA Configuration
+spring:
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:redis}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_UNAME}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  jpa:
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+      properties:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      properties:
+        spring.json.add.type.headers: false
+
+# Shared Logging Configuration
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+      hibernate:
+        SQL: DEBUG
+
+razorpay:
+  api:
+    key: ${RAZORPAY_API_KEY:rzp_test_T2FvGG0wj1yE6j}
+    secret: ${RAZORPAY_API_SECRET:UXqXdckmO8pjhqeOBGZJejeX}
+stripe:
+  api:
+    key: ${STRIPE_API_KEY:sk_test_51P8zW2kL9mNxO4pQ7rS5tU3vW1xY0zABcDeFgHiJkLmNoPqRsTuVwXyZ}
+
+
+fraud:
+  max-transactions-per-minute: 5
+  suspicious-amount-multiplier: 5
+  max-balance-percentage: 0.90
+account:
+  service:
+    url: ${ACCOUNT_SERVICE_URL:http://account-service}

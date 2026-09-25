@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # REDIS - Fraud Detection + Rate Limiting
+  redis:
+    image: redis:latest
+    container_name: redis
+    # restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - banking-network
+
+  # POSTGRES - Per-Service Databases
+  postgres:
+    image: postgres:${POSTGRES_DB_VERSION}
+    container_name: postgres
+    # restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    networks:
+      - banking-network
+
+  # ZOOKEEPER - Required for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    # restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
+      ZOOKEEPER_TICK_TIME: ${ZOOKEEPER_TICK_TIME}
+    networks:
+      - banking-network
+
+  # KAFKA - Event Streaming Platform
+  kafka:
+    image: confluentinc/cp-kafka:${KAFKA_VERSION}
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "${KAFKA_PORT}:${KAFKA_PORT}"
+    environment:
+      KAFKA_BROKER_ID: ${KAFKA_BROKER_ID}
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEEPER_CLIENT_PORT}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:${KAFKA_INTERNAL_PORT},PLAINTEXT_HOST://0.0.0.0:${KAFKA_PORT}
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:${KAFKA_INTERNAL_PORT},PLAINTEXT_HOST://localhost:${KAFKA_PORT}
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    networks:
+      - banking-network
+
+volumes:
+  postgres-data:
+
+networks:
+  banking-network:
+    driver: bridge

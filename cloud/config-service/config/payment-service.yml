@@ -1,0 +1,25 @@
+server:
+  port: 10005
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/${ACCOUNT_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  kafka:
+    consumer:
+      group-id: accounting-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+            use:
+              type:
+                headers: false
+            value:
+              default:
+                type: java.util.HashMap  # Payload type
