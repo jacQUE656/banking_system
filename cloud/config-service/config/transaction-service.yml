@@ -2,7 +2,7 @@ server:
   port: 10006
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/${PAYMENT_DB}
+    url: jdbc:postgresql://postgres:5433/${PAYMENT_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
