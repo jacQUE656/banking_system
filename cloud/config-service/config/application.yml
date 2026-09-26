@@ -6,7 +6,6 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
-
 # Expose Actuator Health Endpoint for Docker Compose health checks
 management:
   endpoints:
