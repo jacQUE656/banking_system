@@ -86,3 +86,7 @@ fraud:
 account:
   service:
     url: ${ACCOUNT_SERVICE_URL:http://account-service}
+
+notification:
+  mail:
+    from: imagineeffect65@gmail.com
