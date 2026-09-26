@@ -1,5 +1,18 @@
+server:
+  port: 8761
+
 spring:
   application:
     name: eureka-server
-  config:
-    import: "optional:configserver:${SPRING_CLOUD_CONFIG_URI:http://localhost:9999}"
+  cloud:
+    config:
+      enabled: false # Temporarily disable config server import for eureka-server to test locally
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    fetch-registry: false
+    register-with-eureka: false
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
