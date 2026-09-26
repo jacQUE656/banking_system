@@ -1,5 +1,6 @@
 package com.banking.transactionservice.controller;
 
+import com.banking.transactionservice.dto.OtpVerificationRequest;
 import com.banking.transactionservice.dto.TransactionRequest;
 import com.banking.transactionservice.dto.TransactionResponse;
 import com.banking.transactionservice.service.TransactionService;
@@ -43,9 +44,9 @@ public class TransactionController {
     @PostMapping("/{transactionId}/verify")
     public ResponseEntity<TransactionResponse> verifyOtp(
             @PathVariable String transactionId,
-            @PathVariable String otp
+            @Valid @RequestBody OtpVerificationRequest request
     ){
-        log.info("OTP verification request - transaction {}", transactionId);
-        return ResponseEntity.ok(transactionService.verifyOtp(transactionId , otp));
+        log.info("OTP verification request for transaction {}", transactionId);
+        return ResponseEntity.ok(transactionService.verifyOtp(transactionId, request.getOtp()));
     }
 }
