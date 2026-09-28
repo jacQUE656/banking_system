@@ -45,16 +45,26 @@ public class FraudDetectionService {
     public void checkTransaction(Map<String, Object> payload) {
         String transactionId = (String) payload.get("transactionId");
         String accountNumber = (String) payload.get("senderAccountNumber");
-        BigDecimal amount = (BigDecimal) payload.get("amount");
+
+        // Safely parse the amount from the Map payload to avoid ClassCastException
+        Object amountObj = payload.get("amount");
+        BigDecimal amount;
+        if (amountObj instanceof BigDecimal) {
+            amount = (BigDecimal) amountObj;
+        } else if (amountObj instanceof Number) {
+            amount = BigDecimal.valueOf(((Number) amountObj).doubleValue());
+        } else {
+            amount = new BigDecimal(amountObj.toString());
+        }
 
         BigDecimal senderBalance = accountFeignClient.getAccountBalance(accountNumber);
 
-        log.info("Checking transactions: {} account :: {} balance: {}", transactionId, senderBalance, amount);
+        log.info("Checking transactions: {} account :: {} balance/amount: {}", transactionId, senderBalance, amount);
 
-        FraudCheckResult result = performFraudCheck(accountNumber,amount,senderBalance);
+        FraudCheckResult result = performFraudCheck(accountNumber, amount, senderBalance);
 
-        if(result.isFraud()) {
-            log.info("Suspicious activity detected - account : {}" + "reason: {} requesting OTP verification", accountNumber, result.getReason());
+        if (result.isFraud()) {
+            log.info("Suspicious activity detected - account : {} reason: {} requesting OTP verification", accountNumber, result.getReason());
 
             Map<String, Object> verificationEvent = new HashMap<>();
             verificationEvent.put("transactionId", transactionId);
@@ -62,9 +72,8 @@ public class FraudDetectionService {
             verificationEvent.put("amount", amount);
             verificationEvent.put("reason", result.getReason());
 
-            //PUBLISH THAT USER NEED S VERIFICATION USING KAFKA
             kafkaTemplate.send(VERIFICATION_REQUIRED_TOPIC, transactionId, verificationEvent);
-        }else {
+        } else {
             log.info("Transaction is clean");
 
             Map<String, Object> transactionEvent = new HashMap<>();
@@ -72,12 +81,9 @@ public class FraudDetectionService {
             transactionEvent.put("isFraud", false);
             transactionEvent.put("reason", null);
 
-            //PUBLISH THAT TRANSACTION IS CLEAN
-              kafkaTemplate.send(FRAUD_CHECK_CLEAN_RESULT_TOPIC , transactionId, transactionEvent);
+            kafkaTemplate.send(FRAUD_CHECK_CLEAN_RESULT_TOPIC, transactionId, transactionEvent);
         }
     }
-
-
 private FraudCheckResult performFraudCheck(String accountNumber, BigDecimal amount, BigDecimal senderBalance) {
 
         // CHECK THE VELOCITY OF THE TRANSACTION (amount of transaction in 60s)

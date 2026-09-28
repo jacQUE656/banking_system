@@ -28,7 +28,7 @@ public class NotificationService {
 
 
     // OTP EVENT
-    @KafkaListener(topics = "transaction.otp.generated")
+    @KafkaListener(topics = "verification.required")
     public void consumeOtpGenerated(@Payload Map<String, Object> payload) {
         try {
             OtpGeneratedEvent event = objectMapper.convertValue(payload, OtpGeneratedEvent.class);
