@@ -30,10 +30,10 @@ public class TransactionService {
     private final AccountServiceClient accountServiceClient;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final RedisTemplate<String, String > redisTemplate;
-    private static final String TRANSACTION_INITIATED_TOPIC = "transaction-initiated";
-    private static final String TRANSACTION_COMPLETED_TOPIC = "transaction-completed";
-    private static final String TRANSACTION_REFUNDED_TOPIC = "transaction-refunded";
-    private static final String FRAUD_DETECTED_TOPIC = "fraud-detected";
+    private static final String TRANSACTION_INITIATED_TOPIC = "transaction.initiated";
+    private static final String TRANSACTION_COMPLETED_TOPIC = "transaction.completed";
+    private static final String TRANSACTION_REFUNDED_TOPIC = "transaction.refunded";
+    private static final String FRAUD_DETECTED_TOPIC = "fraud.detected";
 
     //HELPER METHODS
 
