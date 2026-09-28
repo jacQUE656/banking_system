@@ -3,8 +3,8 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5433/${TRANSACTION_DB:transaction_db}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    username: ${POSTGRES_USER:banking_user}
+    password: ${POSTGRES_PASSWORD:banking_password}
     driver-class-name: org.postgresql.Driver
 
   kafka:
