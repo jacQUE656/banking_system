@@ -13,4 +13,4 @@ spring:
           default-label: main
 
           # 📂 Exact relative path from the repository root to your config files
-          search-paths: services/config-service/config
+          search-paths: cloud/config-service/config
