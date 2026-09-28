@@ -5,28 +5,29 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
+      # Set EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/ in docker-compose only
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+
 # Expose Actuator Health Endpoint for Docker Compose health checks
+# (api-gateway adds "gateway" in its own api-gateway.yml)
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,gateway
+        include: health,info
   endpoint:
     health:
       show-details: always
-
 
 # Shared JWT Configuration
 jwt:
   access-token-expiration: 86400000
   refresh-token-expiration: 604800000
 
-# Shared JPA Configuration
 spring:
   data:
     redis:
-      host: ${SPRING_DATA_REDIS_HOST:redis}
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
       port: ${SPRING_DATA_REDIS_PORT:6379}
 
   mail:
@@ -41,31 +42,27 @@ spring:
           starttls:
             enable: true
 
+  # Shared JPA Configuration
   jpa:
-    show-sql: true
     open-in-view: false
     properties:
       hibernate:
         format_sql: true
     hibernate:
       ddl-auto: update
-      properties:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
-      properties:
-        spring.json.add.type.headers: false
 
 # Shared Logging Configuration
 logging:
   level:
     org:
       springframework:
-        security: DEBUG
+        security: INFO
       hibernate:
         SQL: DEBUG
 
@@ -81,9 +78,10 @@ fraud:
   max-transactions-per-minute: 5
   suspicious-amount-multiplier: 5
   max-balance-percentage: 0.90
+
 account:
   service:
-    url: ${ACCOUNT_SERVICE_URL:http://account-service}
+    url: ${ACCOUNT_SERVICE_URL:http://localhost:10001}
 
 notification:
   mail:
