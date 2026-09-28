@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.math.BigDecimal;
 
-@FeignClient(name = "account-service", url = "account.service.url")
+@FeignClient(name = "account-service")
 public interface AccountServiceFeignClient {
 
     @GetMapping("/api/v1/accounts/{accountNumber}/balance")

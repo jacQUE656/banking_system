@@ -1,7 +1,6 @@
 package com.banking.accountservice.controller;
 
 import com.banking.accountservice.dto.AccountResponse;
-import com.banking.accountservice.dto.AmountRequest;
 import com.banking.accountservice.dto.CreateAccountRequest;
 import com.banking.accountservice.dto.OperationResponse;
 import com.banking.accountservice.service.AccountService;
@@ -67,29 +66,28 @@ public class AccountController {
      * SAGA STEP 1 - Deduct Balance
      * Called by transaction service when transfer is initiated.
      */
+    /**
+     * SAGA STEP 1 - Deduct Balance
+     * Called by transaction service when transfer is initiated.
+     */
     @PutMapping("/{accountNumber}/deduct")
     public ResponseEntity<OperationResponse> deductBalance(
             @PathVariable String accountNumber,
-            @Valid @RequestBody AmountRequest request
+            @RequestBody BigDecimal amount
     ) {
-        accountService.deductBalance(accountNumber, request.getAmount());
+        accountService.deductBalance(accountNumber, amount);
         return ResponseEntity.ok(OperationResponse.success("Account deducted successfully"));
     }
 
     /**
      * SAGA STEP 2 - Compensating transaction endpoint.
-     * Called by transaction service in two scenarios:
-     * 1. Fraud detected -> refund sender (undo step 1)
-     * 2. Transaction completed -> credit receiver
-     *
-     * See NOTE on deductBalance above re: internal-only access.
      */
     @PutMapping("/{accountNumber}/credit")
     public ResponseEntity<OperationResponse> creditBalance(
             @PathVariable String accountNumber,
-            @Valid @RequestBody AmountRequest request
+            @RequestBody BigDecimal amount
     ) {
-        accountService.creditBalance(accountNumber, request.getAmount());
+        accountService.creditBalance(accountNumber, amount);
         return ResponseEntity.ok(OperationResponse.success("Account credited successfully"));
     }
 }
