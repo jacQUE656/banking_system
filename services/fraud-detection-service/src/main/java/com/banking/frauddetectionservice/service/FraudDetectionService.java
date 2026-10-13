@@ -33,7 +33,7 @@ public class FraudDetectionService {
     @Value("${fraud.max-balance-percentage}")
     private double maxBalancePercentage;
 
-    // ALL RESULTS ARE GOING TO BE SENT TO THE TRANSACTION EVENT COSUMER IN TRANSACTION SERVICE USING KAFKA
+    // ALL RESULTS ARE GOING TO BE SENT TO THE TRANSACTION EVENT CONSUMER IN TRANSACTION SERVICE USING KAFKA
 
     private final String VERIFICATION_REQUIRED_TOPIC = "verification.required";
     private  final String FRAUD_CHECK_CLEAN_RESULT_TOPIC = "fraud.check.clean";
@@ -111,7 +111,7 @@ private FraudCheckResult performFraudCheck(String accountNumber, BigDecimal amou
 
 private boolean isVelocityExceeded(String accountNumber) {
     String key = "fraud:velocity" + accountNumber;
-    Long count = redisTemplate.opsForValue().increment(key);
+    Long count = redisTemplate.opsForValue().increment(key); // Increment count to = 1, 2, 3 ...etc. using the key,
 
     if (count != null && count == 1) {
         redisTemplate.expire(key, 60, TimeUnit.SECONDS);

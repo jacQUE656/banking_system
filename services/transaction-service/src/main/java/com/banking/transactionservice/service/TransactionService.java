@@ -198,6 +198,7 @@ private void completeTransaction(Transaction transaction) {
         transaction.setCompletedAt(LocalDateTime.now());
         transactionRepository.save(transaction);
 
+
     TransactionCompletedEvent completedEvent = new TransactionCompletedEvent(
             transaction.getId(),
             transaction.getSenderAccountNumber(),

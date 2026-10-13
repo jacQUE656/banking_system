@@ -31,7 +31,7 @@ public class AccountEventConsumer {
             ){
         try {
             String receiverAccount = (String)  payload.get("accountNumber");
-            BigDecimal creditAmount = (BigDecimal) payload.get("creditAmount");
+            BigDecimal creditAmount = (BigDecimal) payload.get("amount");
 
             log.info("Crediting account for: {} amount: {}", receiverAccount ,  creditAmount);
             accountService.creditBalance(receiverAccount, creditAmount);
