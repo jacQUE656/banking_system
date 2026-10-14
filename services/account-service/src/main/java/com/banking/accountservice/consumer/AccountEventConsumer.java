@@ -17,50 +17,58 @@ public class AccountEventConsumer {
 
     private final AccountService accountService;
 
-    //Here we are consuming transaction completed and fraud event from kafka
-
     /**
      * Consume transaction.completed event from Kafka
-     * Credits receiver amount
+     * Credits receiver amount safely from a Map payload
+     *
      * @param payload
      */
-
     @KafkaListener(topics = "transaction.completed")
     public void consumeTransactionCompleted(
-            @Payload Map<String , Object> payload
-            ){
+            @Payload Map<String, Object> payload
+    ){
         try {
-            String receiverAccount = (String)  payload.get("receiverAccountNumber");
-            BigDecimal creditAmount = (BigDecimal) payload.get("amount");
+            String receiverAccount = (String) payload.get("receiverAccountNumber");
+            Object rawAmount = payload.get("amount");
 
-            log.info("Crediting account for: {} amount: {}", receiverAccount ,  creditAmount);
+            if (rawAmount == null || receiverAccount == null) {
+                log.error("Invalid payload received for transaction.completed: {}", payload);
+                return;
+            }
+
+            // Safely convert the raw amount to BigDecimal avoiding ClassCastException
+            BigDecimal creditAmount;
+            if (rawAmount instanceof Number) {
+                creditAmount = new BigDecimal(rawAmount.toString());
+            } else if (rawAmount instanceof String) {
+                creditAmount = new BigDecimal((String) rawAmount);
+            } else {
+                throw new IllegalArgumentException("Unsupported amount type: " + rawAmount.getClass().getName());
+            }
+
+            log.info("Crediting account for: {} amount: {}", receiverAccount, creditAmount);
             accountService.creditBalance(receiverAccount, creditAmount);
 
-        }catch (Exception e){
-            log.error("Error while credit balance : {}", e.getMessage());
+        } catch (Exception e) {
+            log.error("Error while crediting balance: {}", e.getMessage(), e);
         }
-
     }
 
     /**
-     * consume fraud.detected event from Kafka
+     * Consume fraud.detected event from Kafka
      * Blocks the flagged account
+     *
      * @param payload
      */
-
     @KafkaListener(topics = "fraud.detected")
-    public void consumeFraudDetected(@Payload Map<String , Object> payload){
+    public void consumeFraudDetected(@Payload Map<String, Object> payload){
         try {
-            String receiverAccount = (String)  payload.get("accountNumber");
+            String receiverAccount = (String) payload.get("accountNumber");
             log.info("Fraud detected, blocking account for: {}", receiverAccount);
             accountService.blockAccount(receiverAccount);
 
-
-
-        }catch (Exception e){
-            log.error("Error while blocking balance : {}", e.getMessage());
+        } catch (Exception e) {
+            log.error("Error while blocking account: {}", e.getMessage(), e);
         }
     }
-
-
 }
