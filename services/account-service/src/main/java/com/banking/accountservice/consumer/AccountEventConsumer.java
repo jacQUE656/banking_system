@@ -30,7 +30,7 @@ public class AccountEventConsumer {
             @Payload Map<String , Object> payload
             ){
         try {
-            String receiverAccount = (String)  payload.get("accountNumber");
+            String receiverAccount = (String)  payload.get("receiverAccountNumber");
             BigDecimal creditAmount = (BigDecimal) payload.get("amount");
 
             log.info("Crediting account for: {} amount: {}", receiverAccount ,  creditAmount);
